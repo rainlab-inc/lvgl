@@ -89,6 +89,7 @@ void lv_draw_gles_init_ctx(lv_disp_drv_t * disp_drv, lv_draw_ctx_t * draw_ctx)
     lv_memset_00(draw_gles_ctx->internals, sizeof(lv_draw_gles_context_internals_t));
     lv_draw_gles_utils_internals_init(draw_gles_ctx->internals);
 
+    draw_gles_ctx->internals->framebuffer = *(GLuint*)disp_drv->user_data;
     draw_gles_ctx->base_draw.draw_rect = lv_draw_gles_draw_rect;
     draw_gles_ctx->base_draw.draw_img = lv_draw_gles_draw_img;
     draw_gles_ctx->base_draw.draw_letter = lv_draw_gles_draw_letter;

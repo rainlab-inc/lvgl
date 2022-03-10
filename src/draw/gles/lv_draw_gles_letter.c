@@ -68,7 +68,6 @@ void lv_draw_sw_letter(lv_draw_ctx_t * draw_ctx, const lv_draw_label_dsc_t * dsc
 void lv_draw_gles_draw_letter(lv_draw_ctx_t * draw_ctx, const lv_draw_label_dsc_t * dsc,  const lv_point_t * pos_p,
                               uint32_t letter)
 {
-    lv_draw_sw_letter(draw_ctx, dsc, pos_p, letter);
 }
 
 
