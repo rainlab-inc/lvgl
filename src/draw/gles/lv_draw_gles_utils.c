@@ -104,7 +104,7 @@ static char corner_rect_vertex_shader_str[] =
     "   gl_Position = u_projection * u_model * vec4(a_position.x, a_position.y, 0.0, 1.0); \n"
     "}                            \n";
 /* Without antialiasing */
-static char corner2_rect_fragment_shader_str[] =
+static char corner_rect2_fragment_shader_str[] =
     "precision mediump float;\n"
     "uniform vec4 u_color;   \n"
     "uniform vec2 u_corner;   \n"
@@ -170,8 +170,8 @@ void lv_draw_gles_utils_internals_init(lv_draw_gles_context_internals_t * intern
     glm_mat4_identity(projection);
     glm_ortho(0.0f,
               (float)LV_GPU_SDL_GLES_HOR_RES,
-              0.0f,
               (float)LV_GPU_SDL_GLES_VER_RES,
+              0.0f,
               -1.0f, 1.0f,
               projection);
     glm_mat4_ucopy(projection, internals->projection);
