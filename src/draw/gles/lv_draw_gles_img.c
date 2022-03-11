@@ -28,7 +28,7 @@
 /**********************
  *  STATIC PROTOTYPES
  **********************/
-
+void *bgra_to_rgba(void *data, int w, int h);
 /**********************
  *      MACROS
  **********************/
@@ -37,7 +37,8 @@
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-
+void (*draw_img_decoded)(struct _lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t * dsc,
+                         const lv_area_t * coords, const uint8_t * map_p, lv_img_cf_t color_format);
 #include "../sw/lv_draw_sw.h"
 lv_res_t lv_draw_gles_draw_img(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t * draw_dsc,
                                const lv_area_t * coords, const void * src)
@@ -51,9 +52,10 @@ lv_res_t lv_draw_gles_draw_img(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t
     _lv_img_cache_entry_t  *cdsc = _lv_img_cache_open(src, lv_color_white(), draw_dsc->frame_id);
     lv_img_decoder_dsc_t * dsc = &cdsc->dec_dsc;
 
-    int h = (int) dsc->header.h;
     int w = (int) dsc->header.w;
-    void *data = (void*) dsc->img_data;
+    int h = (int) dsc->header.h;
+    //void *data = (void*) dsc->img_data;
+    void *data = bgra_to_rgba((void*)dsc->img_data, w, h);
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -100,8 +102,9 @@ lv_res_t lv_draw_gles_draw_img(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t
 
         mat4 model;
         glm_mat4_identity(model);
-        glm_translate(model, (vec3) {t_clip.x1, t_clip.y2});
-        glm_scale(model, (vec3) {t_clip.x2 - t_clip.x1, t_clip.y1 - t_clip.y2});
+        glm_translate(model, (vec3) {t_coords.x1, t_coords.y1});
+        glm_scale(model, (vec3) {t_coords.x2 - t_coords.x1, t_coords.y2 - t_coords.y1});
+        LV_LOG_USER("coords : x1: %d  x2: %d y1: %d y2: %d", t_coords.x1, t_coords.x2, t_coords.y1, t_coords.y2);
 #if 1
         glBindFramebuffer(GL_FRAMEBUFFER, internals->framebuffer);
         glUseProgram(internals->simple_img_shader);
@@ -119,11 +122,31 @@ lv_res_t lv_draw_gles_draw_img(lv_draw_ctx_t * draw_ctx, const lv_draw_img_dsc_t
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 #endif
-        LV_LOG_USER("%d", glGetError());
+        //LV_LOG_USER("%d", glGetError());
         //lv_draw_gles_utils_download_texture(draw_ctx);
     }
 }
 /**********************
  *   STATIC FUNCTIONS
  **********************/
+void *bgra_to_rgba(void *data, int w, int h)
+{
+    uint8_t *input = (uint8_t*) data;
+    uint8_t *res = malloc(w * h * 4 * sizeof(uint8_t));
+
+    uint32_t offset = 0;
+
+    for(uint8_t y = 0; y < h; y++) {
+        for(uint8_t x = 0; x < w; x++) {
+            res[offset] = input[offset+ 2];
+            res[offset + 1] = input[offset + 1];
+            res[offset + 2] = input[offset];
+            res[offset + 3] = input[offset + 3];
+
+            offset += 4;
+        }
+    }
+
+    return res;
+}
 #endif /*LV_USE_GPU_SDL_GLES*/
